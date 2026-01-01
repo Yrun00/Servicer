@@ -3,6 +3,7 @@ package com.github.servicer
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
@@ -23,36 +24,31 @@ class SecondService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("SecondService", "SecondService started")
 
-        // 1️⃣ Создаём Notification Channel (нужно на Android 8+)
         createNotificationChannel()
 
-        // 2️⃣ Создаём Notification
         val notification = NotificationCompat.Builder(this, "service_channel")
             .setContentTitle("Service running...")
             .setContentText("Waiting 40 seconds...")
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .build()
 
-        // 3️⃣ Запускаем как Foreground Service
         startForeground(1, notification)
 
-        // 4️⃣ Фоновый поток на 40 сек
         serviceScope.launch {
-            delay(40000)  // Ждём 40 сек
+            delay(40000)
             Log.d("SecondService", "40 seconds passed, opening activity")
 
-            // Открываем Activity из FirstService приложения
             withContext(Dispatchers.Main) {
+
                 val intent = Intent()
                 intent.setClassName(
-                    "com.github.boundservicemultiprocess",  // package первого приложения
-                    "com.github.boundservicemultiprocess.MainActivity"  // activity
+                    "com.github.boundservicemultiprocess",
+                    "com.github.boundservicemultiprocess.MainActivity"
                 )
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 startActivity(intent)
             }
-
-            stopSelf()  // Останавливаем сервис
+            stopSelf()
         }
 
         return START_STICKY

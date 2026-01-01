@@ -20,16 +20,14 @@ class FirstService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("FirstService", "FirstService started")
 
-
-        // Фоновый поток (не блокируем main)
         serviceScope.launch {
-            delay(5000)  // Ждём 5 сек
+            delay(5000)
             Log.d("FirstService", "5 seconds passed, starting SecondService")
 
             val secondServiceIntent = Intent(this@FirstService, SecondService::class.java)
             startService(secondServiceIntent)
         }
-        return START_STICKY  // Если убьют процесс, перезапустить сервис
+        return START_STICKY
     }
     override fun onDestroy() {
         super.onDestroy()
